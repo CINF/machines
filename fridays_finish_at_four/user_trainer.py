@@ -13,7 +13,7 @@ bar_database = BarDatabase(host='servcinf-sql', port=3306)
 
 def read_barcode():
     """Read the barcode and return the number or None on error"""
-    print 'Scan barcode now!'
+    print('Scan barcode now!')
     #import StringIO
     #s = StringIO.StringIO()
     #old_stdin = sys.stdin
@@ -44,10 +44,10 @@ def new():
         message = 'Type user name: '
         data['name'] = input_with_type(message, str)
     except ValueError:
-        print 'Wrong input!... are you drunk?'
+        print('Wrong input!... are you drunk?')
         return
     
-    print data
+    print(data)
     bar_database.insert_user(**data)
     
 

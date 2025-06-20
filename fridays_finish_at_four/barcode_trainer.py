@@ -4,7 +4,7 @@
 
 from bar_database import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
-BAR_DATABASE = BarDatabase(host='servcinf-sql', port=3306)
+BAR_DATABASE = BarDatabase(host='cinfsql.fysik.dtu.dk', port=3306)
 
 
 def read_barcode():
@@ -77,6 +77,17 @@ def update():
         print('Wrong input!... are you drunk?')
         return
 
+def show():
+    data = {}
+    try:
+        data['barcode'] = read_barcode()
+        print(BAR_DATABASE.get_item(data['barcode']))
+    except IndexError:
+        print('Oops, that barcode did not work!')
+    except ValueError:
+        print('Oops, are you sure that is a real barcode?')
+
+
 def input_with_type(prompt, type_function):
     '''Read input from raw input and type convert'''
     out = input(prompt)
@@ -88,12 +99,14 @@ def run():
     """The main part of the program"""
     select = None
     while select != 'q':
-        message = "Enter (n)ew, (u)pdate or (q)uit and press enter: "
+        message = "Enter (n)ew, (u)pdate, (s)how, or (q)uit and press enter: "
         select = input(message)
         if select == 'n':
             new()
         elif select == 'u':
             update()
+        elif select == 's':
+            show()
 
 
 if __name__ == '__main__':

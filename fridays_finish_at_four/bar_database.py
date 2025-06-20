@@ -19,7 +19,7 @@ class BarDatabase(object):
     of utf8 but does not convert to unicode, it lets the utf8 encoded strings through.
 
     """
-    def __init__(self, host='servcinf-sql', port=3306, use_unicode=False):
+    def __init__(self, host='cinfsql.fysik.dtu.dk', port=3306, use_unicode=False):
         self.connection = MySQLdb.connect(host=host, user='fridays',
                                           passwd='fridays', db='cinfdata',
                                           port=port, charset='utf8',
@@ -43,7 +43,8 @@ class BarDatabase(object):
         """
         values = (barcode, price, name, alc, volume, energy_content,
                   beer_description, brewery, None, True)
-        with self.connection:
+        # with self.connection:
+        if True:
             self.cursor.execute("INSERT INTO fridays_items "
                                 "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 values)
@@ -51,7 +52,8 @@ class BarDatabase(object):
     def replace_item(self, barcode, field, value):
         """cursor replace one or more statements with data"""
         print(field, value)
-        with self.connection:
+        # with self.connection:
+        if True:
             query = "UPDATE fridays_items SET {}=%s WHERE barcode=%s".format(field)
             try:
                 self.cursor.execute(query, (value, barcode))
@@ -66,7 +68,8 @@ class BarDatabase(object):
 
     def get_item(self, barcode, statement=None):
         """Return all columns, or the one given by statement, for a barcode"""
-        with self.connection:
+        # with self.connection:
+        if True:
             if statement is None:
                 self.cursor.execute(
                     "SELECT * FROM fridays_items WHERE barcode=%s OR alternative_barcode=%s",
@@ -74,11 +77,9 @@ class BarDatabase(object):
                 )
                 row = self.cursor.fetchall()
                 out = row[0]
-            elif statement in ("price", "name", "alc", "volume", "energy_content",
-                               "beer_description", "brewery", "barcode"):
+            elif statement in ("price", "name", "alc", "volume", "energy_content", "beer_description", "brewery", "barcode"):
                 self.cursor.execute(
-                    "SELECT {} FROM fridays_items WHERE "
-                    "barcode=%s OR alternative_barcode=%s".format(statement),
+                    "SELECT {} FROM fridays_items WHERE barcode=%s OR alternative_barcode=%s".format(statement),
                     (barcode, barcode)
                 )
                 row = self.cursor.fetchall()
@@ -101,9 +102,9 @@ class BarDatabase(object):
         Returns:
             tuple: (Name (str), id (int)) tuple
         """
-        with self.connection:
-            self.cursor.execute("SELECT name, id FROM fridays_user WHERE user_barcode=%s",
-                                (user_barcode,))
+        # with self.connection:
+        if True:
+            self.cursor.execute("SELECT name, id FROM fridays_user WHERE user_barcode=%s", (user_barcode,))
             row = self.cursor.fetchall()
             print(row[0])
         return row[0]
@@ -121,10 +122,9 @@ class BarDatabase(object):
             else:
                 amount = abs(amount)
             values = (user_barcode, time.time(), amount, item, user_id)
-            with self.connection:
-                self.cursor.execute("INSERT INTO fridays_transactions (user_barcode,"
-                                    " time, amount, item_barcode, user_id) VALUES "
-                                    "(%s, from_unixtime(%s), %s, %s, %s)", values)
+            # with self.connection:
+            if True:
+                self.cursor.execute("INSERT INTO fridays_transactions (user_barcode, time, amount, item_barcode, user_id) VALUES (%s, from_unixtime(%s), %s, %s, %s)", values)
 
     def get_log(self, user_id):
         """ Returns user purchase log """
@@ -132,10 +132,10 @@ class BarDatabase(object):
 
     def sum_log(self, user_id):
         """ Sums over all elements in amount with given user_id """
-        with self.connection:
-            self.cursor.execute("SELECT sum(amount) FROM fridays_transactions "
-                                "WHERE user_id=%s", (user_id,))
-
+        # with self.connection:
+        if True:
+            #self.cursor.execute("SELECT sum(amount) FROM fridays_transactions WHERE user_id=%s", (user_id,))
+            self.cursor.execute("SELECT sum(amount) FROM fridays_transactions")
             row = self.cursor.fetchall()
             print('amount sum: {}'.format(row[0][0]))
         return row[0][0]
@@ -184,7 +184,7 @@ def module_test():
     """Run the module test"""
     try:
         # Assume office PC and just try and connect to db
-        database = BarDatabase("servcinf-sql", 3306)
+        database = BarDatabase("cinfsql.fysik.dtu.dk", 3306)
         through_tunnel = False
     except MySQLdb.OperationalError:
         # If not, try and create a tunnel
@@ -199,6 +199,8 @@ def module_test():
 
     username, id_ = database.get_user('test')
     print("For barcode 'test' fetch name '{}' and id '{}'".format(username.decode(), id_))
+
+    print(database.sum_log(id_))
 
     print("For id {} fetch sum {}".format(id_, database.sum_log(id_)))
 
