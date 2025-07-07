@@ -1,5 +1,5 @@
 <autostart>
-  <name>RASPPI96_AUTOSTART</name> <!-- no spaces -->
+  <name>SURFPI01_AUTOSTART</name> <!-- no spaces -->
   <session>
     <startdelay>20</startdelay>
     <command>python datalogger.py</command>
@@ -7,7 +7,7 @@
   </session>
   <session>
     <startdelay>20</startdelay>
-    <command>python ../../PyExpLabSys/apps/edwards_nxds_logger.py rasppi96</command>
+    <command>python ../../PyExpLabSys/apps/edwards_nxds_logger.py uhvsputter-surfpi01</command>
     <name>Edwards Rough Pump</name>
   </session>
 </autostart>
