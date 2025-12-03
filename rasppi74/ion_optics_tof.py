@@ -1,9 +1,7 @@
-""" Ion Optics Controll for TOF """
+""" Ion Optics Control for TOF """
 import time
 from PyExpLabSys.apps.ion_optics_controller import CursesTui as CursesTui
 from PyExpLabSys.apps.ion_optics_controller import IonOpticsControl as IonOpticsControl
-from PyExpLabSys.common.supported_versions import python2_and_3
-python2_and_3(__file__)
 
 def main():
     """ Main function """
@@ -17,6 +15,14 @@ def main():
     tui = CursesTui(ioc)
     tui.daemon = True
     tui.start()
+
+    while True:
+        try:
+            time.sleep(10)
+        except KeyboardInterrupt:
+            tui.stop()
+            ioc.quit = True
+            break
 
 if __name__ == '__main__':
     main()
