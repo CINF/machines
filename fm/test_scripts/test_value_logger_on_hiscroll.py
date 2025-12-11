@@ -151,7 +151,7 @@ for i, t in enumerate(df.timestamp):
             raise
 t0 = time[0]
 ydata = df.get(CODENAME)
-#ydata[30:50] = 0
+#ydata[30000:36000] = 0
 
 print('Data loaded in {} s'.format(timed.time() - load_time_zero))
 
@@ -170,6 +170,7 @@ checker = OldChecker(
     time_outs=[TIMEOUT],
     )
 checker.deprecation_warning = False
+
 old_time_start = timed.time()
 for i, y in enumerate(ydata):
     checker.check(CODENAME, y, now=time[i])
@@ -177,8 +178,8 @@ old_time = timed.time() - old_time_start
 old_data = np.array(checker.get_data(CODENAME))
 
 # Plot reference data
-ax1.plot(time - t0, ydata, 'bo-', label='Original data')
-ax1.plot(old_data[:, 0] - t0, old_data[:, 1], 'r-', label='Original LCC')
+ax1.plot(time, ydata, 'bo-', markersize=10, label='Original data')
+ax1.plot(old_data[:, 0], old_data[:, 1], 'ro-', markersize=8, label='Original LCC')
 
 print('Old checker run in {} s'.format(old_time))
 
@@ -189,15 +190,21 @@ checker = Checker(
     types=[TYPE],
     criteria=[CRITERIUM],
     time_outs=[TIMEOUT],
-    grades=[0.1],
+    grades=[0.3],
     )
 checker.deprecation_warning = False
 new_time_start = timed.time()
+temp_data = []
 for i, y in enumerate(ydata):
-    checker.check(CODENAME, y, now=time[i])
+    if checker.check(CODENAME, y, now=time[i]):
+        for point in checker.get_data(CODENAME):
+            temp_data.append(point)
 new_time = timed.time() - new_time_start
 print('New checker run in {} s'.format(new_time))
-new_data = np.array(checker.get_data(CODENAME))
+#new_data = np.array(checker.get_data(CODENAME))
+new_data = np.array(temp_data)
+
+ax1.plot(new_data[:, 0], new_data[:, 1], 'go-', label='New LCC')
 
 # ValueLogger
 class Reader(object):
@@ -226,7 +233,7 @@ logger1 = ValueLogger(
     maximumtime=TIMEOUT,
     model='sparse',
     grade=0.1,
-    simulate=True,
+    run_on_old_data=True,
     )
 logger1.start()
 
@@ -243,7 +250,7 @@ logger2 = ValueLogger(
     maximumtime=TIMEOUT,
     model='event',
     grade=0.1,
-    simulate=True,
+    run_on_old_data=True,
     )
 logger2.start()
 
@@ -277,7 +284,6 @@ print('Number of points saved by old sparse ValueLogger: {} / {:1.1f}%'.format(l
 print('Number of points saved by new event ValueLogger: {} / {:1.1f}%'.format(lr2, lr2/lref*100))
 
 # Plot reference data
-ax1.plot(new_data[:, 0] - t0, new_data[:, 1], 'go-', label='New LCC')
 #t1 = checker.r_time
 #p1 = checker.r_value
 
