@@ -1,0 +1,2 @@
+user='omicron'
+passwd='omicron'
