@@ -139,6 +139,7 @@ def uptime(hostname, port, username, password):
                 '-o LogLevel=quiet',
                 '-oUserKnownHostsFile=/dev/null',
                 '-oStrictHostKeyChecking=no',
+                '-o ConnectTimeout=5',
                 username + "@" + hostname,
                 'cat /proc/uptime /proc/loadavg',
             ]
@@ -205,6 +206,7 @@ def uptime(hostname, port, username, password):
                         '-o LogLevel=quiet',
                         '-oUserKnownHostsFile=/dev/null',
                         '-oStrictHostKeyChecking=no',
+                        '-o ConnectTimeout=5',
                         username + "@" + hostname,
                         'cat /etc/os-release',
                     ]
@@ -300,7 +302,8 @@ class CheckHost(threading.Thread):
                 attr['os_version'] = ''
                 attr['last_accessed'] = ''
             for suffix in suffixes:
-                host_is_up = host_status(host[1] + suffix, host[2])
+                host_try = host[1] + suffix
+                host_is_up = host_status(host_try, host[2])
                 if host_is_up:
                     hostname = host[1] + suffix
                     break
@@ -359,8 +362,15 @@ class CheckHost(threading.Thread):
                 except KeyError:
                     uptime_val['apt_up'] = ''
             if not 'location' in uptime_val:
-                uptime_val['location'] = '<i>' + host[3] + '</i>'
-                uptime_val['purpose'] = '<i>' + host[4] + '</i>'
+                # Default new entries with empty fields
+                if host[3]:
+                    uptime_val['location'] = '<i>' + host[3] + '</i>'
+                else:
+                    uptime_val['location'] = '<i>?</i>'
+                if host[4]:
+                    uptime_val['purpose'] = '<i>' + host[4] + '</i>'
+                else:
+                    uptime_val['purpose'] = '<i>?</i>'
             self.results.put(uptime_val)
 
             self.hosts.task_done()
