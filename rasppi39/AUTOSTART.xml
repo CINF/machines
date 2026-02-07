@@ -1,0 +1,18 @@
+<autostart>
+  <name>rasppi143</name>
+  <session>
+    <startdelay>5</startdelay>
+    <command>python3 gasmonitor_1.py</command>
+    <name>1. gas logging - 1</name>
+  </session>
+  <session>
+    <startdelay>5</startdelay>
+    <command>python3 gasmonitor_2.py</command>
+    <name>1. gas logging - 2</name>
+  </session>
+  <session>
+    <startdelay>5</startdelay>
+    <command>echo "Edit your files in this window"</command>
+    <name>Emacs</name>
+  </session>
+</autostart>

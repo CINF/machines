@@ -1,0 +1,5 @@
+id: b307-139
+purpose: Gas alarm - 307 first floor
+
+This raspberry pi is responsible for logging the gas alarms in building 307 first floor. 
+Located in room 139.
