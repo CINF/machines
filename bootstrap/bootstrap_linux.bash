@@ -22,6 +22,7 @@ install     Install commonly used packages e.g openssh-server
 pip         Install extra Python packages with pip
 autostart   Setup autostart cronjob
 settings    Link in the SurfCat PyExpLabSys settings file
+screen      Visual defaults for screen program
 
 all         All of the above
 "
@@ -93,4 +94,9 @@ if [ $1 == "settings" ] || [ $1 == "all" ];then
         cp ~/machines/bootstrap/user_settings.yaml ~/.config/PyExpLabSys/user_settings.yaml
     fi
     echogood "+++++> DONE"
+fi
+
+# Setup autostart cronjob
+if [ $1 == "screen" ] || [ $1 == "all" ];then
+    $HOME/PyExpLabSys/bootstrap/bootstrap_linux.bash screen
 fi
