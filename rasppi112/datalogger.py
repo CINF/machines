@@ -27,15 +27,13 @@ try:
         raw_data = dataq.read()
         data_sock.set_point_now('ready_voltage', [raw_data[1]])
         pressure_sock.set_point_now([raw_data[8]*2.052+0.996])
-        #pressure_sock.set_point_now([raw_data[8]])
-        #pressure_sock.set_point_now([raw_data[8]*2.075+1.010]) #old calibration
         retention_time_cache.append(round(time.time()-retention_zero,3))
         FID_lowV_cache.append(raw_data[2])
         FID_highV_cache.append(raw_data[4])
         TCD_lowV_cache.append(raw_data[3])
         TCD_highV_cache.append(raw_data[5])
         if len(retention_time_cache) == 8: #averaging over 8 points
-            data_sock.set_point_now('retention_time', [round(retention_time_cache[-1],3)])
+            data_sock.set_point_now('retention_time', [retention_time_cache[-1]])
             data_sock.set_point_now('FID low V', [mean(FID_lowV_cache)])
             data_sock.set_point_now('FID high V', [mean(FID_highV_cache)])
             data_sock.set_point_now('TCD low V', [mean(TCD_lowV_cache)])
