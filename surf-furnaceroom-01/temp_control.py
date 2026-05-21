@@ -223,8 +223,8 @@ class SimplePlot(QtWidgets.QWidget):
         else:
             self.ramp['init'] = False
         for i in range(0, 11):
-            self.ramp['time'][i] = int(evaluate_string(self.gui.temperature_ramp.item(i, 0).text(), verbose=False))
-            self.ramp['temp'][i] = int(self.gui.temperature_ramp.item(i, 1).text())
+            self.ramp['time'][i] = float(evaluate_string(self.gui.temperature_ramp.item(i, 0).text(), verbose=False))
+            self.ramp['temp'][i] = float(self.gui.temperature_ramp.item(i, 1).text())
             self.ramp['step'][i] = int(self.gui.temperature_ramp.item(i, 2).checkState()) == 2
         data = 'json_wn#' + json.dumps({'ramp': self.ramp})
         ack = self.push_command(data)
