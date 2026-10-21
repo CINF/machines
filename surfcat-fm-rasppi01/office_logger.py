@@ -44,15 +44,25 @@ class Reader(threading.Thread):
 
     def run(self):
         while not self.quit:
-            self.ttl = 50
-            self.humidity, self.temperature = self.honeywell.read_values()
-            print(self.humidity, self.temperature)
             time.sleep(0.2)
+            try:
+                self.humidity, self.temperature = self.honeywell.read_values()
+            except OSError:
+                print('OSError I2C')
+                self.ttl -= 1
+                if self.ttl < 0:
+                    print('Too many errors - quitting!')
+                    self.quit = True
+                continue
+            print(self.humidity, self.temperature)
+            self.ttl = 50
+
 
 def main():
     """ Main function """
     hih_instance = honeywell_6000.HIH6130()
     reader = Reader(hih_instance)
+    reader.daemon = True
     reader.start()
 
     time.sleep(5)
@@ -78,11 +88,18 @@ def main():
                                     measurement_codenames=codenames)
     db_logger.start()
 
+    error = 0
     while reader.is_alive():
-        time.sleep(1)
+        print(True)
+        time.sleep(0.5)
         for name in codenames:
             value = loggers[name].read_value()
-            livesocket.set_point_now(name, value)
+            try:
+                livesocket.set_point_now(name, value)
+                error = 0
+            except OSError as msg:
+                error += 0.5
+                LOGGER.warning('Error count: {} ({})'.format(error, msg))
             socket.set_point_now(name, value)
             if loggers[name].read_trigged():
                 print(value)
@@ -97,5 +114,6 @@ if __name__ == '__main__':
             print('!!!')
             LOGGER.warning("Got '{}', restarting in 300s".format(exception))
             time.sleep(300)
+            #raise
         except KeyboardInterrupt:
             break
