@@ -1,4 +1,3 @@
-
 import time
 import logging
 import minimalmodbus
@@ -9,6 +8,7 @@ from typing import Optional, Dict, Any
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.StreamHandler())
 LOGGER.setLevel(logging.INFO)
+
 
 class PR4511_4131:
     """
@@ -30,27 +30,27 @@ class PR4511_4131:
 
     # Input register addresses (function code 4)
     REG = {
-        "display_value": 1000,      # int (scaled); for temperature types: 1/10 °C
-        "percent_pv": 1002,         # int (0..9999 -> 0..100.00 %)
-        "measure_status": 1003,     # uint bitfield
-        "error_status": 1004,       # uint bitfield
-        "relay_status": 1005,       # uint bitfield
-        "primary_raw": 1006,        # float (2 regs)
-        "primary_value": 1008,      # float (2 regs)
-        "relative_pv": 1010,        # float (2 regs) 0.0..1.0
-        "measure_control": 1014,    # uint (R/W)
-        "timeout_counter": 1015,    # uint (R/W)
-        "internal_temp": 1016,      # int; /10 °C
+        "display_value": 1000,  # int (scaled); for temperature types: 1/10 °C
+        "percent_pv": 1002,  # int (0..9999 -> 0..100.00 %)
+        "measure_status": 1003,  # uint bitfield
+        "error_status": 1004,  # uint bitfield
+        "relay_status": 1005,  # uint bitfield
+        "primary_raw": 1006,  # float (2 regs)
+        "primary_value": 1008,  # float (2 regs)
+        "relative_pv": 1010,  # float (2 regs) 0.0..1.0
+        "measure_control": 1014,  # uint (R/W)
+        "timeout_counter": 1015,  # uint (R/W)
+        "internal_temp": 1016,  # int; /10 °C
     }
 
     def __init__(
-            self,
-            port: str,
-            device_address: int,
-            baudrate: int = 19200,
-            parity=serial.PARITY_EVEN,
-            stopbits: int = 1,
-            timeout: float = 0.1,
+        self,
+        port: str,
+        device_address: int,
+        baudrate: int = 19200,
+        parity=serial.PARITY_EVEN,
+        stopbits: int = 1,
+        timeout: float = 0.1,
     ):
         """
         :param port: '/dev/serial/by-id/<adapter-id>'
@@ -104,7 +104,7 @@ class PR4511_4131:
         except Exception as e:
             LOGGER.error(f"Int decode error at {addr}: {e}")
             return None
-    
+
     def _read_float32(self, addr: int) -> Optional[float]:
         regs = self._read_input_regs(addr, 2)
         if not regs or len(regs) != 2:
@@ -128,7 +128,7 @@ class PR4511_4131:
             return number
         # Otherwise write to device
         self.comm.write_registers(14, [number])
-    
+
     def tag_number(self, tag=None):
         """Read or write the tag number. Only up to 6 characters will be written"""
         if tag is None:
@@ -141,7 +141,7 @@ class PR4511_4131:
     def identify_device(self):
         """Make the LCD screen flash for 10 seconds"""
         self.comm.write_registers(4001, [1])
-        
+
     def read_relative_value(self):
         """The relative display value (fraction) of the full scale value"""
         return self._read_float32(self.REG["relative_pv"])
@@ -151,7 +151,7 @@ class PR4511_4131:
         value = self._read_uint32(self.REG["display_value"])
         if value:
             return value / 10
-    
+
     def read_measure_status(self) -> Optional[int]:
         return self._read_uint16(self.REG["measure_status"])
 
@@ -180,10 +180,14 @@ class PR4511_4131:
           7: SENSOR BROKEN
         """
         names = [
-            "out_underrange", "out_overrange",
-            "out_low_limited", "out_high_limited",
-            "in_underrange", "in_overrange",
-            "sensor_shorted", "sensor_broken",
+            "out_underrange",
+            "out_overrange",
+            "out_low_limited",
+            "out_high_limited",
+            "in_underrange",
+            "in_overrange",
+            "sensor_shorted",
+            "sensor_broken",
         ]
         return {names[i]: bool(bits & (1 << i)) for i in range(len(names))}
 
@@ -212,11 +216,16 @@ class PR4511_4131:
           9: RELAY 2 CAN NOT RELEASE
         """
         names = [
-            "r1_inverted", "r2_inverted",
-            "r1_on", "r2_on",
-            "r1_pending", "r2_pending",
-            "r1_latched", "r2_latched",
-            "r1_cannot_release", "r2_cannot_release",
+            "r1_inverted",
+            "r2_inverted",
+            "r1_on",
+            "r2_on",
+            "r1_pending",
+            "r2_pending",
+            "r1_latched",
+            "r2_latched",
+            "r1_cannot_release",
+            "r2_cannot_release",
         ]
         return {names[i]: bool(bits & (1 << i)) for i in range(len(names))}
 
@@ -238,9 +247,33 @@ if __name__ == "__main__":
     timeout_counter = dev.read_timeout_counter()
 
     # Console printout
-    print(f"Display value   : {display_value:.3f}" if display_value is not None else "Display value   : ERROR")
-    print(f"Relative value  : {relative_value:.3f}" if relative_value is not None else "Relative value  : ERROR")
-    print(f"Measure status  : 0x{measure_status:04X}" if measure_status is not None else "Measure status  : ERROR")
-    print(f"Error status    : 0x{error_status:04X}" if error_status is not None else "Error status    : ERROR")
-    print(f"Relay status    : 0x{relay_status:04X}" if relay_status is not None else "Relay status    : ERROR")
-    print(f"Timeout counter : {timeout_counter}" if timeout_counter is not None else "Timeout counter : ERROR")
+    print(
+        f"Display value   : {display_value:.3f}"
+        if display_value is not None
+        else "Display value   : ERROR"
+    )
+    print(
+        f"Relative value  : {relative_value:.3f}"
+        if relative_value is not None
+        else "Relative value  : ERROR"
+    )
+    print(
+        f"Measure status  : 0x{measure_status:04X}"
+        if measure_status is not None
+        else "Measure status  : ERROR"
+    )
+    print(
+        f"Error status    : 0x{error_status:04X}"
+        if error_status is not None
+        else "Error status    : ERROR"
+    )
+    print(
+        f"Relay status    : 0x{relay_status:04X}"
+        if relay_status is not None
+        else "Relay status    : ERROR"
+    )
+    print(
+        f"Timeout counter : {timeout_counter}"
+        if timeout_counter is not None
+        else "Timeout counter : ERROR"
+    )
